@@ -65,8 +65,11 @@ def readConfig():
     return config
 
 ### 读取配置文件
-def readData():
-    dataPath = input('请输入数据文件路径(如e:/data.csv)：\n')
+def readData(isXHF = False):
+    if (isXHF):
+        dataPath = input('请输入【新话费】数据文件路径(如e:/data2.csv)：\n')
+    else:
+        dataPath = input('请输入【不包含新话费】数据文件路径(如e:/data1.csv)：\n')
     while not isCsvFile(dataPath) :
         dataPath = input('文件路径错误！请重新输入:\n')
     
@@ -78,8 +81,27 @@ def readData():
             continue
         if row[1] not in result.keys() :
             result[row[1]] = {}
-        result[row[1]][row[2]] = float(row[3])
+        if row[2] not in result[row[1]]:
+            result[row[1]][row[2]] = 0;
+        result[row[1]][row[2]] += float(row[3])
     return result
+
+### 合并新话费
+def mergeData(data, xdata):
+    if len(xdata) == 0:
+        return data
+    for key in data:
+        val = data[key]
+        if HF in val and key in xdata.keys():
+            val[HF] -= xdata[key][XHF];
+        data[key] = val;
+    for key in xdata:
+        if key not in data:
+            data[key] = {}
+        if XHF not in data[key]:
+            data[key][XHF] = 0
+        data[key][XHF] += xdata[key][XHF]
+    return data;
 
 ### 计算出要输出的数据
 def calcData(config, data):
@@ -168,8 +190,21 @@ else:
             print(row)
             print(data[row]);
             
+c = input('是否需要读取新话费的数据(Y/N):')
+if c == 'y' or c == 'Y':
+    xdata = readData(True);
+    if len(xdata) == 0:
+        print('新话费的数据为空，请检查！')
+        sys.exit()
+    else:
+        c = input('新话费数据读取成功，是否需要合并两个数据(Y/N):')
+        if c == 'y' or c == 'Y':
+            data = mergeData(data, xdata);
+            print('合并成功')
 
+            
 #计算结果
+print('开始计算结果....')
 result = calcData(config, data);
 print('\n')
 for row in result:
