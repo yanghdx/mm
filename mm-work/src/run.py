@@ -5,6 +5,7 @@ HF  = '话费'
 SJ  = '手机'
 ZFB = '支付宝'
 QT  = '其他'
+XHF = '新话费'
 # 普通费率
 CP  = 0.03
 # 输出文件title
@@ -13,6 +14,7 @@ title = ['商户', '总金额 ',
          '手机金额',   '移动费率', '移动收入', 
          '支付宝金额 ', '移动费率', '移动收入' , 
          '积分金额 ',  '移动费率', '移动收入' ,
+         '新话费',    '移动费率', '移动收入',
          '移动总收入']
 
 ### 读取csv file
@@ -123,8 +125,16 @@ def calcData(config, data):
         one.append(CP)
         one.append(one[11] * one[12])
         
+        #新话费
+        if XHF in val:
+            one.append(val[XHF])
+        else:
+            one.append(0)
+        one.append(CP)
+        one.append(one[14] * one[15])
+        
         #移动总收入
-        one.append(one[4] + one[7] + one[10] + one[13])
+        one.append(one[4] + one[7] + one[10] + one[13] + one[16])
         result.append(one)
     return result
 ################################################################################################
